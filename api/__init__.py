@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_restx import Api
 from .auth.views import auth_namespace
+from .scraping.views import get_departure_time_arrival_namespace
 from .config.config import config_dict
 from .utils import db
 from .models.users import User
@@ -33,6 +34,7 @@ def create_app(config=config_dict['dev']):
         security="Bearer Auth")
 
     api.add_namespace(auth_namespace, path='/auth')
+    api.add_namespace(get_departure_time_arrival_namespace)
 
     jwt=JWTManager(app)
 
