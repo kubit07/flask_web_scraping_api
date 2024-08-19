@@ -61,6 +61,7 @@ class DepartureTimeArrival(Resource):
                     time_travel = get_time_travel_dpt_arr[2],
                     file = get_time_travel_dpt_arr[0]
                 )
+
                 return new_route, HTTPStatus.CREATED
             
             else :
