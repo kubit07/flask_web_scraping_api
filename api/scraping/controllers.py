@@ -1,6 +1,11 @@
 import os
+import sys 
 import json
 from datetime import datetime
+import networkx as nx
+import api.scraping.fonctionsGraphe as fg
+
+
 
 def get_travel_time(start_city, end_city, directory):
 
@@ -41,7 +46,7 @@ def get_travel_time_real_time(start_city, end_city, directory):
 
     route_key = f"('{start_city}', '{end_city}')" 
 
-    with open(os.path.join(f"{directory}\{day_week}", f"{hour_file}.json"), 'r') as f:
+    with open(os.path.join(f"{directory}\\{day_week}", f"{hour_file}.json"), 'r') as f:
             data = json.load(f)
             for travel, time in data.items():
                 if (route_key == travel):
@@ -51,5 +56,39 @@ def get_travel_time_real_time(start_city, end_city, directory):
 
 
 
-def get_dijkstra_travel_time():
-    pass
+def get_dijkstra_travel_time(start_city, end_city, directory):
+        
+    # Construire le chemin complet vers le fichier JSON
+    franceSimple = os.path.join(os.path.dirname(__file__), '..', 'assets', 'franceSimple.json')
+
+    #chargement du graphe
+    graphe = fg.loadGraph(franceSimple)
+
+    now = datetime.now()
+    day_week = now.strftime("%A")
+    hour = now.hour
+    hour_file = hour-1
+
+    with open(os.path.join(f"{directory}\\{day_week}", f"{hour_file}.json"), 'r') as f:
+        data = json.load(f)
+
+    #mise à jour des attributs temps et récompense du graphe 
+    for edge in graphe.edges:
+        if str(edge) in data:
+            graphe.edges[edge]['temps'] = data[str(edge)]
+            graphe.edges[edge]['recompense'] = - data[str(edge)]
+        else:
+            sys.exit("Error: Edge {edge} not found in {day}.json")
+
+    #choix de la ville de  destination
+    destination = end_city
+
+    #Choix de la ville de départ
+    departure = start_city
+
+    try:
+        trajet_dijkstra = nx.dijkstra_path(graphe, departure, destination,'temps')
+        trajet_dijkstra_time = nx.dijkstra_path_length(graphe,departure,destination,'temps')
+        return (trajet_dijkstra, trajet_dijkstra_time)
+    except:
+        return None

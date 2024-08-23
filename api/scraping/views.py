@@ -5,7 +5,7 @@ from api.models.routes import Route
 from http import HTTPStatus
 from api.config.config import BASE_DIR_DATA_SCRAPING_WINDOWS
 from api.config.config import BASE_DIR_DATA_SCRAPING_WINDOWS_STREAM
-from api.scraping.controllers import get_travel_time, get_travel_time_real_time
+from api.scraping.controllers import get_dijkstra_travel_time, get_travel_time, get_travel_time_real_time
 from werkzeug.exceptions import Conflict,BadRequest
 
 
@@ -22,60 +22,13 @@ route_model_time = get_departure_time_arrival_namespace.model(
     'Route',{
         'departure':fields.String(required=True,description="a departure city"),
         'arrival':fields.String(required=True,description="a arrival city"),
-        'time_travel':fields.String(required=True,description="travel time"),
-        'time_scraping':fields.String(required=True,description="time of scraping data"),
-        'file':fields.String(required=True,description="file"),
+        'travel':fields.String(required=True,description="route from one city to another"),
+        'time_travel':fields.String(required=True,description="travel time")
     }
 )
 
 
 @get_departure_time_arrival_namespace.route('/route/time')
-class DepartureTimeArrival(Resource):
-    @get_departure_time_arrival_namespace.doc(
-        description="get travel time from a departure city to an arrival city"
-    )
-    @jwt_required()
-    @get_departure_time_arrival_namespace.expect(route_model)
-    @get_departure_time_arrival_namespace.marshal_with(route_model_time)
-    def post(self):
-        """
-            get travel time from a departure city to an arrival city
-        Args:
-            departure (String): departure city
-            arrival (String): arrival city
-        Returns:
-            time (String): travel time
-        """
-        data = request.get_json()
-
-        try:
-
-            departure = data.get('departure')
-            arrival = data.get('arrival')
-
-            get_time_travel_dpt_arr = get_travel_time(departure, arrival, BASE_DIR_DATA_SCRAPING_WINDOWS)
-
-            if get_time_travel_dpt_arr:
-                new_route = Route(
-                    departure = departure,
-                    arrival = arrival,
-                    time_scraping = get_time_travel_dpt_arr[1],
-                    time_travel = get_time_travel_dpt_arr[2],
-                    file = get_time_travel_dpt_arr[0]
-                )
-
-                return new_route, HTTPStatus.CREATED
-            
-            else :
-                response = jsonify({"error": "No data available"})
-                response.status_code = 204
-                return response, HTTPStatus.NO_CONTENT
-
-        except Exception as e:
-            raise Conflict(f"Exception : {e}")
-
-
-@get_departure_time_arrival_namespace.route('/route/time/stream')
 class DepartureTimeArrivalRealTime(Resource):
     @get_departure_time_arrival_namespace.doc(
         description="get travel time from a departure city to an arrival city in real time"
@@ -95,27 +48,34 @@ class DepartureTimeArrivalRealTime(Resource):
         data = request.get_json()
 
         try:
-
             departure = data.get('departure')
             arrival = data.get('arrival')
-
-            get_time_travel_dpt_arr = get_travel_time_real_time(departure, arrival, BASE_DIR_DATA_SCRAPING_WINDOWS_STREAM)
-
-            if get_time_travel_dpt_arr:
+            time = get_travel_time_real_time(departure, arrival, BASE_DIR_DATA_SCRAPING_WINDOWS_STREAM)
+            if time:
                 new_route = Route(
                     departure = departure,
                     arrival = arrival,
-                    time_scraping = None,
-                    time_travel = get_time_travel_dpt_arr,
-                    file = None
+                    travel = None,
+                    time_travel = time
                 )
-
                 return new_route, HTTPStatus.CREATED
             
-            else :
-                response = jsonify({"error": "No data available"})
-                response.status_code = 204
-                return response, HTTPStatus.NO_CONTENT
+            if not time:
+                get_directions_time = get_dijkstra_travel_time(departure, arrival, BASE_DIR_DATA_SCRAPING_WINDOWS_STREAM)
+                
+                if get_directions_time:
+                    new_route = Route(
+                        departure = departure,
+                        arrival = arrival,
+                        travel = get_directions_time[0],
+                        time_travel = get_directions_time[1]
+                    )
+                    return new_route, HTTPStatus.CREATED
+            
+                else:
+                    response = jsonify({"error": "No data available"})
+                    response.status_code = 204
+                    return response, HTTPStatus.NO_CONTENT
 
         except Exception as e:
             raise Conflict(f"Exception : {e}")

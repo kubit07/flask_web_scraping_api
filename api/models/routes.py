@@ -3,9 +3,10 @@ import json
 
 class Route:
     
-    def __init__(self,departure, arrival, time_travel, time_scraping, file) -> None:
+    def __init__(self, departure, arrival, travel, time_travel):
         self.departure = departure
         self.arrival = arrival
+        self.travel = travel
         self.time_travel = time_travel
 
     def __str__(self):
