@@ -32,6 +32,24 @@ def get_travel_time(start_city, end_city, directory):
     return results[-1] if results else None
 
 
+def get_travel_time_real_time(start_city, end_city, directory):
+
+    now = datetime.now()
+    day_week = now.strftime("%A")
+    hour = now.hour
+    hour_file = hour-1
+
+    route_key = f"('{start_city}', '{end_city}')" 
+
+    with open(os.path.join(f"{directory}\{day_week}", f"{hour_file}.json"), 'r') as f:
+            data = json.load(f)
+            for travel, time in data.items():
+                if (route_key == travel):
+                    return time
+                else:
+                    None
+
+
 
 def get_dijkstra_travel_time():
     pass
