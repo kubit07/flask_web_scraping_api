@@ -4,10 +4,10 @@ from decouple import config
 
 
 BASE_DIR=os.path.dirname(os.path.realpath(__file__))
-BASE_DIR_DATA_SCRAPING_WINDOWS = (r"C:\Users\dvesa\data_scraping\data_scraping")
-BASE_DIR_DATA_SCRAPING_WINDOWS_STREAM = (r"G:\Stage M2")
-#BASE_DIR_DATA_SCRAPING_LINUX_STREAM = (r"C:\Users\dvesa\data_scraping\data_scraping")
-#BASE_DIR_DATA_SCRAPING_LINUX = (r"C:\Users\dvesa\data_scraping\data_scraping")
+#BASE_DIR_DATA_SCRAPING_WINDOWS = (r"C:\Users\dvesa\data_scraping\data_scraping")
+#BASE_DIR_DATA_SCRAPING_WINDOWS_STREAM = (r"G:\Stage M2")
+BASE_DIR_DATA_SCRAPING_LINUX_STREAM = (r"/home/axelle/WebScraping")
+BASE_DIR_DATA_SCRAPING_LINUX = (r"/home/axelle/WebScraping/data_scraping")
 
 class Config:
     SECRET_KEY=config('SECRET_KEY', 'secret')
