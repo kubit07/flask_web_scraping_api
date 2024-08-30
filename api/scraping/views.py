@@ -3,8 +3,7 @@ from flask_restx import Resource, Namespace, fields
 from flask_jwt_extended import jwt_required
 from api.models.routes import Route
 from http import HTTPStatus
-from api.config.config import BASE_DIR_DATA_SCRAPING_WINDOWS
-from api.config.config import BASE_DIR_DATA_SCRAPING_WINDOWS_STREAM
+from api.config.config import BASE_DIR_DATA_SCRAPING_LINUX_STREAM
 from api.scraping.controllers import get_dijkstra_travel_time, get_travel_time, get_travel_time_real_time
 from werkzeug.exceptions import Conflict,BadRequest
 
@@ -52,7 +51,7 @@ class DepartureTimeArrivalRealTime(Resource):
         try:
             departure = data.get('departure')
             arrival = data.get('arrival')
-            time = get_travel_time_real_time(departure, arrival, BASE_DIR_DATA_SCRAPING_WINDOWS_STREAM)
+            time = get_travel_time_real_time(departure, arrival, BASE_DIR_DATA_SCRAPING_LINUX_STREAM)
             if time:
                 new_route = Route(
                     departure = departure,
@@ -63,7 +62,7 @@ class DepartureTimeArrivalRealTime(Resource):
                 return new_route, HTTPStatus.CREATED
             
             if not time:
-                get_directions_time = get_dijkstra_travel_time(departure, arrival, BASE_DIR_DATA_SCRAPING_WINDOWS_STREAM)
+                get_directions_time = get_dijkstra_travel_time(departure, arrival, BASE_DIR_DATA_SCRAPING_LINUX_STREAM)
                 
                 if get_directions_time:
                     new_route = Route(
