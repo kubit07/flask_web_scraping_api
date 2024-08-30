@@ -7,8 +7,10 @@ from flask_jwt_extended import (create_access_token,
 create_refresh_token,jwt_required,get_jwt_identity)
 from werkzeug.exceptions import Conflict,BadRequest
 
+# Définition de l'espace de noms pour l'authentification
 auth_namespace=Namespace('auth', description='a namespace for authentification')
 
+# Modèle pour la création d'un nouvel utilisateur
 signup_model=auth_namespace.model(
     'User',{
         'id':fields.Integer(),
@@ -18,6 +20,7 @@ signup_model=auth_namespace.model(
     }
 )
 
+# Modèle pour représenter un utilisateur (utilisé dans les réponses)
 user_model=auth_namespace.model(
     'User',{
         'id':fields.Integer(),
@@ -30,7 +33,7 @@ user_model=auth_namespace.model(
 
 )
 
-
+# Modèle pour les informations de connexion (login)
 login_model=auth_namespace.model(
     'Login',{
         'email':fields.String(required=True,description="An email"),
@@ -40,6 +43,9 @@ login_model=auth_namespace.model(
 
 @auth_namespace.route('/signup')
 class SignUp(Resource):
+    """
+    Endpoint pour créer un nouveau compte utilisateur.
+    """
 
     @auth_namespace.expect(signup_model)
     @auth_namespace.marshal_with(user_model)
@@ -65,6 +71,9 @@ class SignUp(Resource):
 
 @auth_namespace.route('/login')
 class Login(Resource):
+    """
+    Endpoint pour générer un paire de jetons JWT (accès et rafraîchissement).
+    """
 
     def post(self):
         """
@@ -96,6 +105,9 @@ class Login(Resource):
 
 @auth_namespace.route('/refresh')
 class Refresh(Resource):
+    """
+    Endpoint pour rafraîchir le jeton d'accès JWT en utilisant un jeton de rafraîchissement.
+    """
 
     @jwt_required(refresh=True)
     def post(self):

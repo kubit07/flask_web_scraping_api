@@ -10,6 +10,39 @@ from flask_jwt_extended import JWTManager
 from werkzeug.exceptions import NotFound,MethodNotAllowed
 
 def create_app(config=config_dict['dev']):
+    """
+    Crée et configure une instance de l'application Flask.
+
+    Cette fonction initialise une instance de l'application Flask avec la configuration spécifiée,
+    configure la base de données, les migrations, l'API avec les espaces de noms et la gestion des erreurs.
+
+    ### Paramètres :
+    - `config` (object) : Configuration à appliquer à l'application Flask. Par défaut, utilise 
+      la configuration de développement définie dans `config_dict['dev']`.
+
+    ### Retourne :
+    - `Flask` : L'application Flask configurée.
+
+    ### Détails :
+    1. Initialise l'application Flask.
+    2. Applique la configuration fournie à l'application.
+    3. Initialise la connexion à la base de données avec `db`.
+    4. Configure la gestion des migrations de la base de données avec `Migrate`.
+    5. Configure l'API REST avec `Api`, y compris les autorisations JWT pour l'authentification.
+    6. Ajoute les espaces de noms pour les routes API.
+    7. Configure la gestion des erreurs pour les erreurs 404 et 405.
+    8. Configure le contexte de shell pour faciliter l'accès à la base de données et aux modèles.
+
+    ### Configuration de l'API :
+    - **Bearer Auth** : Authentification par jeton JWT avec un en-tête `Authorization` de type `apiKey`.
+
+    ### Gestion des erreurs :
+    - **404 Not Found** : Retourne un message d'erreur lorsque la route demandée n'existe pas.
+    - **405 Method Not Allowed** : Retourne un message d'erreur lorsque la méthode HTTP demandée n'est pas autorisée.
+
+    ### Contexte du shell :
+    - Ajoute les objets `db` et `User` au contexte du shell pour un accès facile en ligne de commande.
+    """
 
     app = Flask(__name__)
 

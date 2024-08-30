@@ -8,6 +8,19 @@ import api.scraping.fonctionsGraphe as fg
 
 
 def get_travel_time(start_city, end_city, directory):
+    """
+    Récupère le temps de trajet le plus récent entre `start_city` et `end_city` 
+    à partir de fichiers JSON dans le répertoire spécifié.
+
+    ### Paramètres :
+    - `start_city` (str) : Ville de départ.
+    - `end_city` (str) : Ville d'arrivée.
+    - `directory` (str) : Chemin du répertoire contenant les fichiers JSON.
+
+    ### Retourne :
+    - `tuple` : (nom du fichier, heure de scrapping, temps de trajet entre les deux) pour 
+      la paire de villes la plus récente, ou `None` si aucune correspondance n'est trouvée.
+    """
 
     results_distances = []
     results_files = []
@@ -38,11 +51,29 @@ def get_travel_time(start_city, end_city, directory):
 
 
 def get_travel_time_real_time(start_city, end_city, directory):
+    """
+    Récupère le temps de trajet en temps réel entre `start_city` (ville de départ) et `end_city`(ville d'arrivé) 
+    à partir d'un fichier JSON (données scrapées).
+
+    La fonction lit les données du fichier JSON situé dans un sous-répertoire nommé 
+    d'après le jour de la semaine courant (`day_week`) et un fichier nommé avec 
+    l'heure précédente (ex: `14.json`). Elle retourne le temps de 
+    trajet pour la paire de villes spécifiée, si disponible.
+
+    ### Paramètres :
+    - `start_city` (str) : Ville de départ.
+    - `end_city` (str) : Ville d'arrivée.
+    - `directory` (str) : Chemin du répertoire contenant les sous-répertoires des jours de la semaine.
+
+    ### Retourne :
+    - `str` : Temps de trajet pour la paire de villes si trouvée dans le fichier JSON, 
+      ou `None` si aucune correspondance n'est trouvée ou si le fichier ne contient pas la clé.
+    """
 
     now = datetime.now()
-    day_week = now.strftime("%A")
+    day_week = now.strftime("%A") #permert dé récupéer le jour à partir d'une date (lundi etc.)
     hour = now.hour
-    hour_file = hour-1
+    hour_file = hour-1 #car le fichier le plus récent correspond a'l'heure actuelle -1
 
     route_key = f"('{start_city}', '{end_city}')" 
 
@@ -57,6 +88,21 @@ def get_travel_time_real_time(start_city, end_city, directory):
 
 
 def get_dijkstra_travel_time(start_city, end_city, directory):
+    """
+    Calcule le temps de trajet entre `start_city` et `end_city` en utilisant l'algorithme de Dijkstra 
+    sur un graphe de routes, avec les temps de trajet chargés depuis un fichier JSON.
+
+    ### Paramètres :
+    - `start_city` (str) : Ville de départ.
+    - `end_city` (str) : Ville d'arrivée.
+    - `directory` (str) : Répertoire contenant les sous-répertoires des jours de la semaine avec les fichiers JSON des temps de trajet.(fichier scrapées)
+
+    ### Retourne :
+    - `tuple` : (chemin le plus court, temps total du trajet) ou `None` en cas d'erreur.
+
+    ### Exceptions :
+    - `sys.exit` : Arrête l'exécution si une arête n'est pas trouvée dans le fichier JSON.
+    """
         
     # Construire le chemin complet vers le fichier JSON
     franceSimple = os.path.join(os.path.dirname(__file__), '..', 'assets', 'franceSimple.json')
